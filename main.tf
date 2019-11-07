@@ -1,3 +1,6 @@
+variable "projectName" {
+  type = string
+}
 variable "azureSpnID" {
   type = string
 }
@@ -7,12 +10,8 @@ variable "azureSpnSecret" {
 variable "aws_access_key_id" {
   type = string
 }
-variable "aws_secret_access_key"{
-    type = string
-}
-variable "vpcName" {
+variable "aws_secret_access_key" {
   type = string
-
 }
 variable "vpcCIDR" {
   type = string
@@ -48,7 +47,6 @@ variable "adminPassword" {
 }
 
 locals {
-
   common_tags = {
     purpose = "cloudLego"
   }
@@ -61,15 +59,15 @@ provider "aws" {
 provider "azurerm" {
   version         = " ~> 1.34.0"
   subscription_id = "971ec4cb-0c36-4322-8dec-acd62423cf5e"
-  client_id       = "783619fa-4f5f-4502-ae27-49309ded97c8"
-  client_secret   = "s6b5/]AWQsl0wFurngl0s@cGpeNyija@"
+  client_id       = var.azureSpnID
+  client_secret   = var.azureSpnSecret
   tenant_id       = "c8605902-a4a3-4cc0-b23f-ef51a862988c"
 }
 
 resource "aws_vpc" "vpc1" {
   cidr_block = var.vpcCIDR
   tags = {
-    Name = var.vpcName
+    Name = "vpcLego"
   }
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -99,6 +97,9 @@ resource "aws_subnet" "primarySubnet" {
   cidr_block              = lookup(var.subnetCIDR, "subnet1")
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
+  tags = {
+    Name = "vpcLego_subnet1"
+  }
 }
 resource "aws_route_table_association" "a2" {
   subnet_id      = aws_subnet.primarySubnet.id
@@ -108,15 +109,14 @@ resource "aws_route_table_association" "a2" {
 resource "azurerm_resource_group" "myFirstRG" {
   name     = "mySecondRG"
   location = "West US"
-  tags = {
-    purpose = "cloudLego"
-  }
+  tags     = local.common_tags
 }
 resource "azurerm_virtual_network" "azureVnet" {
   name                = var.vnetName
   resource_group_name = azurerm_resource_group.myFirstRG.name
   location            = azurerm_resource_group.myFirstRG.location
   address_space       = [var.vnetCIDR]
+  tags                = local.common_tags
 }
 resource "azurerm_network_security_group" "sitetositensg" {
   name                = "sitetositensg"
@@ -133,6 +133,7 @@ resource "azurerm_network_security_group" "sitetositensg" {
     source_address_prefix      = var.vpcCIDR
     destination_address_prefix = "*"
   }
+  tags = local.common_tags
 }
 resource "azurerm_subnet" "subnet1" {
   name                 = "subnet1"
@@ -203,7 +204,7 @@ resource "aws_vpn_connection_route" "awstoazure" {
   vpn_connection_id      = aws_vpn_connection.awsvpncon.id
 }
 resource "azurerm_local_network_gateway" "lngw1" {
-  name                = "lngw1"
+  name                = "tunnel1"
   resource_group_name = azurerm_resource_group.myFirstRG.name
   location            = azurerm_resource_group.myFirstRG.location
   gateway_address     = aws_vpn_connection.awsvpncon.tunnel1_address
@@ -211,7 +212,7 @@ resource "azurerm_local_network_gateway" "lngw1" {
   tags                = local.common_tags
 }
 resource "azurerm_virtual_network_gateway_connection" "vngc1" {
-  name                       = "vngc1"
+  name                       = "tunnel1_conn"
   location                   = azurerm_resource_group.myFirstRG.location
   resource_group_name        = azurerm_resource_group.myFirstRG.name
   type                       = "IPsec"
@@ -231,56 +232,7 @@ resource "azurerm_network_interface" "nic01" {
   }
   tags = local.common_tags
 }
-resource "azurerm_route_table" "route" {
-  name                = "awsroute"
-  location            = azurerm_resource_group.myFirstRG.location
-  resource_group_name = azurerm_resource_group.myFirstRG.name
-  route {
-    name           = "awsroute"
-    address_prefix = aws_vpc.vpc1.cidr_block
-    next_hop_type  = "VirtualNetworkGateway"
-  }
-}
-resource "azurerm_virtual_machine" "windowsAD" {
-  name                  = "windowsAD"
-  location              = azurerm_resource_group.myFirstRG.location
-  resource_group_name   = azurerm_resource_group.myFirstRG.name
-  network_interface_ids = [azurerm_network_interface.nic01.id]
-  vm_size               = "Standard_D1"
-  storage_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2012-R2-Datacenter"
-    version   = "latest"
-  }
-  storage_os_disk {
-    name              = "windowsAD_osDisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-  os_profile {
-    computer_name  = "windowsAD"
-    admin_username = var.adminUsername
-    admin_password = var.adminPassword
-  }
-  os_profile_windows_config {
-    provision_vm_agent = false
-  }
-  tags = local.common_tags
-}
-resource "aws_instance" "membernode" {
-  ami                         = "ami-0d4df21ffeb914d61"
-  instance_type               = "t2.micro"
-  availability_zone           = "us-east-1a"
-  security_groups             = ["sg-0e02ec7970ec33e8c"]
-  subnet_id                   = aws_subnet.primarySubnet.id
-  key_name                    = "cptest"
-  associate_public_ip_address = true
-  tags = {
-    Name = "memberNode"
-  }
-}
+
 
 output "awsVPC" {
   value = aws_vpc.vpc1.id
