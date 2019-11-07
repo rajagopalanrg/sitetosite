@@ -142,6 +142,7 @@ resource "azurerm_subnet" "subnet1" {
 resource "azurerm_subnet_network_security_group_association" "nsgtosubnet" {
   subnet_id                 = azurerm_subnet.subnet1.id
   network_security_group_id = azurerm_network_security_group.sitetositensg.id
+  depends_on                = [azurerm_subnet.subnet1]
 }
 resource "azurerm_subnet" "gatewaySubnet" {
   name                 = "GatewaySubnet"
@@ -172,6 +173,7 @@ resource "azurerm_virtual_network_gateway" "vng" {
     subnet_id                     = azurerm_subnet.gatewaySubnet.id
   }
   tags = local.common_tags
+  depends_on = [azurerm_subnet.gatewaySubnet]
 }
 resource "aws_customer_gateway" "awsCGW" {
   bgp_asn    = 65000
@@ -228,6 +230,7 @@ resource "azurerm_network_interface" "nic01" {
     private_ip_address_allocation = "Dynamic"
   }
   tags = local.common_tags
+  depends_on = [azurerm_subnet.subnet1]
 }
 
 
