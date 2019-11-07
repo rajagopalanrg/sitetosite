@@ -1,55 +1,62 @@
 variable "azureSpnID" {
-  type = "string"
+  type = string
 }
-variable "azureSpnSecret"{
-  type = "string"
+variable "azureSpnSecret" {
+  type = string
+}
+variable "aws_access_key_id" {
+  type = string
+}
+variable "aws_secret_access_key"{
+    type = string
 }
 variable "vpcName" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "vpcCIDR" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "subnetCIDR" {
-  type = "map"
-  
+  type = map
+
 }
 variable "vnetName" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "vnetCIDR" {
-  type    = "string"
-  
+  type = "string"
+
 }
 variable "azureSubnetCIDR" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "gatewayCIDR" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "adminUsername" {
-  type    = "string"
-  
+  type = string
+
 }
 variable "adminPassword" {
-  type    = "string"
-  
+  type = string
+
 }
 
 locals {
-  
+
   common_tags = {
     purpose = "cloudLego"
   }
 }
 provider "aws" {
-  shared_credentials_file = "%aws_cred%"
-  region                  = "us-east-1"
+  access_key = "${var.aws_access_key_id}"
+  secret_key = "${var.aws_secret_access_key}"
+  region     = "us-east-1"
 }
 provider "azurerm" {
   version         = " ~> 1.34.0"
