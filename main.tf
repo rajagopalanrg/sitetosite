@@ -1,6 +1,3 @@
-variable "projectName" {
-  type = string
-}
 variable "azureSpnID" {
   type = string
 }
