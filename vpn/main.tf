@@ -46,7 +46,8 @@ resource "azurerm_virtual_network_gateway" "vng" {
     private_ip_address_allocation = "Dynamic"
     subnet_id                     = var.azureSubnetId
   }
-  tags = local.common_tags
+  tags       = local.common_tags
+  depends_on = [azurerm_public_ip.gwip]
 }
 resource "aws_customer_gateway" "awsCGW" {
   bgp_asn    = 65000
@@ -55,6 +56,7 @@ resource "aws_customer_gateway" "awsCGW" {
   tags = {
     Name = "custGateway1"
   }
+  depends_on = [azurerm_public_ip.gwip]
 }
 resource "aws_vpn_gateway" "awsvpngw" {
   vpc_id = var.awsVPCID
@@ -102,6 +104,7 @@ resource "aws_route_table" "forwardazure" {
   tags = {
     Name = "vpcLego_RT"
   }
+  depends_on = [aws_vpn_gateway.awsvpngw]
 }
 resource "azurerm_route_table" "route" {
   name                = "awsroute"
@@ -116,8 +119,10 @@ resource "azurerm_route_table" "route" {
 resource "aws_main_route_table_association" "a1" {
   vpc_id         = var.awsVPCID
   route_table_id = aws_route_table.forwardazure.id
+  depends_on     = [aws_route_table.forwardazure]
 }
 resource "aws_route_table_association" "a2" {
   subnet_id      = var.awsSubnetID
   route_table_id = aws_route_table.forwardazure.id
+  depends_on     = [aws_route_table.forwardazure]
 }

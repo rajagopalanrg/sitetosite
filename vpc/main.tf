@@ -85,6 +85,7 @@ resource "azurerm_subnet" "subnet1" {
 resource "azurerm_subnet_network_security_group_association" "nsgtosubnet" {
   subnet_id                 = azurerm_subnet.subnet1.id
   network_security_group_id = azurerm_network_security_group.sitetositensg.id
+  depends_on = [azurerm_subnet.subnet1]
 }
 resource "azurerm_subnet" "gatewaySubnet" {
   name                 = "GatewaySubnet"
