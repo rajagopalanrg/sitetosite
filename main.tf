@@ -16,9 +16,6 @@ variable "vpcCIDR" {
 variable "subnetCIDR" {
   type = map
 }
-variable "vnetName" {
-  type = string
-}
 variable "vnetCIDR" {
   type = "string"
 }
