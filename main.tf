@@ -52,12 +52,15 @@ module "vpc" {
   gatewayCIDR     = var.gatewayCIDR
 }
 module "vpn" {
-  source            = "./vpn"
-  resourceGroupName = module.vpc.resourceGroupName
-  location          = module.vpc.location
-  azureSubnetId     = module.vpc.azureSubnetId
-  awsVPCID          = module.vpc.awsVPCID
-  awsSubnetID       = module.vpc.awsSubnetID
-  azureSubnetCIDR   = module.vpc.azureSubnetCIDR
-  awsCIDR           = module.vpc.awsCIDR
+  source             = "./vpn"
+  resourceGroupName  = module.vpc.resourceGroupName
+  location           = module.vpc.location
+  azureSubnetId      = module.vpc.azureSubnetId
+  awsVPCID           = module.vpc.awsVPCID
+  awsSubnetID        = module.vpc.awsSubnetID
+  azureSubnetCIDR    = module.vpc.azureSubnetCIDR
+  awsCIDR            = module.vpc.awsCIDR
+  nsgID              = module.vpc.nsgID
+  azureGatewaySubnet = module.vpc.azureGatewaySubnet
+  igwID              = module.vpc.igwID
 }

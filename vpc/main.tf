@@ -21,7 +21,6 @@ variable "gatewayCIDR" {
   default = "10.11.1.0/24"
 }
 locals {
-  
   common_tags = {
     purpose = "cloudLego"
   }
@@ -82,11 +81,6 @@ resource "azurerm_subnet" "subnet1" {
   address_prefix       = var.azureSubnetCIDR
   depends_on           = [azurerm_virtual_network.azureVnet]
 }
-resource "azurerm_subnet_network_security_group_association" "nsgtosubnet" {
-  subnet_id                 = azurerm_subnet.subnet1.id
-  network_security_group_id = azurerm_network_security_group.sitetositensg.id
-  depends_on = [azurerm_subnet.subnet1]
-}
 resource "azurerm_subnet" "gatewaySubnet" {
   name                 = "GatewaySubnet"
   resource_group_name  = azurerm_resource_group.myFirstRG.name
@@ -100,8 +94,8 @@ output "awsVPCID" {
 output "awsSubnetID" {
   value = aws_subnet.primarySubnet.id
 }
-output "azureSubnetId"{
-    value = azurerm_subnet.gatewaySubnet.id
+output "azureSubnetId" {
+  value = azurerm_subnet.subnet1.id
 }
 output "awsCIDR" {
   value = aws_vpc.vpc1.cidr_block
@@ -120,4 +114,10 @@ output "location" {
 }
 output "azureSubnetCIDR" {
   value = azurerm_subnet.subnet1.address_prefix
+}
+output "igwID" {
+  value = aws_internet_gateway.igwLego.id
+}
+output "nsgID" {
+  value = azurerm_network_security_group.sitetositensg.id
 }

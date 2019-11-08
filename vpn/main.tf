@@ -4,7 +4,7 @@ variable "resourceGroupName" {
 variable "location" {
   type = string
 }
-variable "azureSubnetId" {
+variable "azureGatewaySubnet" {
   type = string
 }
 variable "awsVPCID" {
@@ -19,8 +19,16 @@ variable "azureSubnetCIDR" {
 variable "awsCIDR" {
   type = string
 }
+variable "igwID" {
+  type = string
+}
+variable "nsgID" {
+  type = string
+}
+variable "azureSubnetId" {
+  type = string
+}
 locals {
-
   common_tags = {
     purpose = "cloudLego"
   }
@@ -44,7 +52,7 @@ resource "azurerm_virtual_network_gateway" "vng" {
     name                          = "vnetGatewayConfig"
     public_ip_address_id          = azurerm_public_ip.gwip.id
     private_ip_address_allocation = "Dynamic"
-    subnet_id                     = var.azureSubnetId
+    subnet_id                     = var.azureGatewaySubnet
   }
   tags       = local.common_tags
   depends_on = [azurerm_public_ip.gwip]
@@ -101,6 +109,10 @@ resource "aws_route_table" "forwardazure" {
     cidr_block = var.azureSubnetCIDR
     gateway_id = aws_vpn_gateway.awsvpngw.id
   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = var.igwID
+  }
   tags = {
     Name = "vpcLego_RT"
   }
@@ -125,4 +137,8 @@ resource "aws_route_table_association" "a2" {
   subnet_id      = var.awsSubnetID
   route_table_id = aws_route_table.forwardazure.id
   depends_on     = [aws_route_table.forwardazure]
+}
+resource "azurerm_subnet_network_security_group_association" "nsgtosubnet" {
+  subnet_id                 = var.azureSubnetId
+  network_security_group_id = var.nsgID
 }
