@@ -12,37 +12,22 @@ variable "aws_secret_access_key" {
 }
 variable "vpcCIDR" {
   type = string
-
 }
 variable "subnetCIDR" {
   type = map
-
 }
 variable "vnetName" {
   type = string
-
 }
 variable "vnetCIDR" {
   type = "string"
-
 }
 variable "azureSubnetCIDR" {
   type = string
-
 }
 variable "gatewayCIDR" {
   type = string
-
 }
-variable "adminUsername" {
-  type = string
-
-}
-variable "adminPassword" {
-  type = string
-
-}
-
 locals {
   common_tags = {
     purpose = "cloudLego"
