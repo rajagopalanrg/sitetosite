@@ -98,7 +98,7 @@ resource "azurerm_virtual_network_gateway_connection" "vngc1" {
 resource "aws_route_table" "forwardazure" {
   vpc_id = var.awsVPCID
   route {
-    cidr_block = var.awsCIDR
+    cidr_block = var.azureSubnetCIDR
     gateway_id = aws_vpn_gateway.awsvpngw.id
   }
   tags = {
