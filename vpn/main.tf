@@ -54,6 +54,15 @@ resource "azurerm_virtual_network_gateway" "vng" {
     private_ip_address_allocation = "Dynamic"
     subnet_id                     = var.azureGatewaySubnet
   }
+  vpn_client_configuration {
+    address_space = ["10.32.0.0/24"]
+    root_certificate {
+      name = "rootcertp2s"
+      public_cert_data = <<EOF
+      MIIC5TCCAc2gAwIBAgIQFAKPgKEDiaZP9cZLn6DScDANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDDApQMlNIV0FSb290MB4XDTE5MTEwOTEwMDYzNFoXDTIwMTEwOTEwMjYzNFowFTETMBEGA1UEAwwKUDJTSFdBUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANsSd1Mt4eLAIZzO48BJuyY6Wna/s0NE5qqYP5IgTRUaZbTapiMb3HI7Ix+tDiQGO1EvOOi5o4Z/VllqXPJ5JX6ecUGnvbsV1Gy9QHqu4LL4I41GTd3nNc1b49/t2IaDJGTESgkWOHyzzlw4CU2QPEzP94JfGZSnBrQdDWycI2wuMJzJb2Y/4fg+gBoBDZoqA6E7aTlgUOzlDXzWWI+8ZjjPNJIQ3VKxowZCvbLesqCjtDqcYKIp6OSL1yu1lCLsIsWTXxhqeohVZibdIhV7tJ9pcyJAmjx04TUIP0v6wCkXmMrwdBwNUvzQ2ZcEHbOMnniMjLzuwZB20M+wvCW19d0CAwEAAaMxMC8wDgYDVR0PAQH/BAQDAgIEMB0GA1UdDgQWBBTlmKbNFSjFtlc5vXOAcovWikvHajANBgkqhkiG9w0BAQsFAAOCAQEAbqpcaHqRU7e7IXvfti+HQLRSJuc90i6lMHFmNsYpLfZo7jVSM2jw4lawpK9HlPYSXB6iFwKnH25CC9cs/n8tjT/hk91lGltLpiV32OeZYO264NWcCaORiFwE/xEOMJZniPDNUkiNjwTcCHBbrdM925WD71ug7VJZr4BZ1wRVlZ+7U/ZB2ynOvdwHcShKklhnDoZAivka2lXPjZ8WLNIWV3R3yXGFb3VP04spNlvNZk+s/k5eivbCu5bxNW6LiV3A/IaSiNdSULX2qBXyrXMJ6hx5SbfZ0Y4Mwt6eElQgw1EJaFrmpkJi03q80x8OZ1cdxIjD78joCtQ5VwTEvX5jRw==
+      EOF
+    }
+  }
   tags       = local.common_tags
   depends_on = [azurerm_public_ip.gwip]
 }
