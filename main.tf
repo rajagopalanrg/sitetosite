@@ -64,3 +64,6 @@ module "vpn" {
   azureGatewaySubnet = module.vpc.azureGatewaySubnet
   igwID              = module.vpc.igwID
 }
+output "vpcId" {
+  value = module.vpc.awsVPCID
+}
